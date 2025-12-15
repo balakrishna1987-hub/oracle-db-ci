@@ -2,19 +2,12 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Checkout Source') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/balakrishna1987-hub/oracle-db-ci.git'
-            }
-        }
-
         stage('Deploy DDL') {
             steps {
                 sh '''
-                docker exec -i oracle-xe \
-                sqlplus appuser/app123@XE < create_table.sql
+                echo "DDL files:"
+                ls ddl
+                docker exec -i oracle-xe sqlplus appuser/app123@XE < ddl/create_table.sql
                 '''
             }
         }
@@ -22,8 +15,9 @@ pipeline {
         stage('Deploy DML') {
             steps {
                 sh '''
-                docker exec -i oracle-xe \
-                sqlplus appuser/app123@XE < insert_employee.sql
+                echo "DML files:"
+                ls plsql
+                docker exec -i oracle-xe sqlplus appuser/app123@XE < plsql/insert_employee.sql
                 '''
             }
         }
@@ -31,8 +25,9 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                docker exec -i oracle-xe \
-                sqlplus appuser/app123@XE < verify.sql
+                echo "Verify files:"
+                ls verify
+                docker exec -i oracle-xe sqlplus appuser/app123@XE < verify/verify.sql
                 '''
             }
         }
